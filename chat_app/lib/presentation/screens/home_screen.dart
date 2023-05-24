@@ -1,6 +1,8 @@
 import 'package:chat_app/presentation/screens/chat_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
 import 'package:chat_app/presentation/screens/search_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,11 +16,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List _screens = [
-    ChatScreen(),
-    SearchScreen(),
+  final List _screens = [
+    const ChatScreen(),
+    const SearchScreen(),
     ProfileScreen(),
   ];
+  
   int _selectedIndex = 0;
 
   void navigateBottomBar(int index) {
@@ -31,9 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Text('Chat App'),
+        title: const Text('Chat App'),
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: const Icon(Icons.logout))
+        ],
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
@@ -49,15 +60,15 @@ class _HomeScreenState extends State<HomeScreen> {
             onTabChange: (index) => navigateBottomBar(index),
             gap: 8,
             tabs: [
-              GButton(
+              const GButton(
                 icon: Icons.chat,
                 text: 'Chat',
               ),
-              GButton(
+              const GButton(
                 icon: Icons.search,
                 text: 'Search',
               ),
-              GButton(
+              const GButton(
                 icon: Icons.home,
                 text: 'Home',
               )
