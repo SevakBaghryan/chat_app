@@ -19,13 +19,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final List _screens = [
     const ChatScreen(),
     const SearchScreen(),
-    ProfileScreen(),
+    const ProfileScreen(),
   ];
-  
-  int _selectedIndex = 0;
+
+  int _selectedIndex = 2;
 
   void navigateBottomBar(int index) {
-    print(index);
     setState(() {
       _selectedIndex = index;
     });
@@ -52,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           child: GNav(
+            selectedIndex: _selectedIndex,
             backgroundColor: Colors.black,
             color: Colors.white,
             activeColor: Colors.white,
@@ -59,16 +59,16 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(13),
             onTabChange: (index) => navigateBottomBar(index),
             gap: 8,
-            tabs: [
-              const GButton(
+            tabs: const [
+              GButton(
                 icon: Icons.chat,
                 text: 'Chat',
               ),
-              const GButton(
+              GButton(
                 icon: Icons.search,
                 text: 'Search',
               ),
-              const GButton(
+              GButton(
                 icon: Icons.home,
                 text: 'Home',
               )

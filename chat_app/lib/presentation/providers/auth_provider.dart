@@ -9,11 +9,13 @@ class AuthProvider extends ChangeNotifier {
   AppUser? user;
 
   Future<void> getUserById(String id) async {
+    // print('dddddddddddddddddddddd' + user!.email);
     final documentSnapshot =
         await FirebaseFirestore.instance.collection('Users').doc(id).get();
 
     final myJson = documentSnapshot.data();
     user = AppUser.fromJson(myJson!);
+
     notifyListeners();
   }
 }

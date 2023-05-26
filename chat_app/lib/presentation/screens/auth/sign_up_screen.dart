@@ -80,7 +80,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         usersCollection.doc(userCredential.user!.uid).set(
               newUser.toJson(),
             );
-        Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context);
+        }
       } on FirebaseAuthException catch (e) {
         Navigator.pop(context);
         showMessage(e.code);
@@ -96,8 +98,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-
-  final picker = ImagePicker();
 
   File? image;
 
