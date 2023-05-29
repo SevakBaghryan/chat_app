@@ -1,4 +1,5 @@
 import 'package:chat_app/presentation/screens/chat_screen.dart';
+import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
 import 'package:chat_app/presentation/screens/search_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -38,6 +39,16 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Chat App'),
         backgroundColor: Colors.black,
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => FriendRequestsScreen(),
+                ),
+              );
+            },
+            icon: Icon(Icons.notifications),
+          ),
           IconButton(
               onPressed: () {
                 FirebaseAuth.instance.signOut();

@@ -21,13 +21,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
     Future<void> searchUser(String searchTerm) async {
       searchResult = [];
-      QuerySnapshot querySnapshot =
+      final querySnapshot =
           await usersCollection.where('name', isEqualTo: searchTerm).get();
 
       querySnapshot.docs.forEach(
         (document) {
-          print(querySnapshot);
-          searchResult.add(document.data());
+          print(document.id);
+          searchResult.add(document.id);
         },
       );
 
@@ -58,10 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
             itemCount: foundUsers.length,
             itemBuilder: (context, index) {
               return UserTile(
-                userImageUrl: foundUsers[index]['userImageUrl'],
-                userName: foundUsers[index]['name'],
-                userEmail: foundUsers[index]['email'],
-                secondname: foundUsers[index]['secondName'],
+                userId: foundUsers[index],
               );
             },
           ),
