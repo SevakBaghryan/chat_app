@@ -1,15 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
   final Function()? onTap;
-  SignInScreen({super.key, required this.onTap});
+  const SignInScreen({super.key, required this.onTap});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -113,7 +112,7 @@ class _SignInScreenState extends State<SignInScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Haven\'t an account yet? '),
+                  const Text('Haven\'t an account yet? '),
                   GestureDetector(
                     onTap: widget.onTap,
                     child: const Text(
@@ -127,7 +126,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              ElevatedButton(onPressed: signInWithGoogle, child: Text('Google'))
+              ElevatedButton(
+                  onPressed: signInWithGoogle, child: const Text('Google'))
             ],
           ),
         ),

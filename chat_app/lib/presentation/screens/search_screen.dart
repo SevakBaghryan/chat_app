@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'package:chat_app/presentation/components/user_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +28,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
       querySnapshot.docs.forEach(
         (document) {
-          print(document.id);
           searchResult.add(document.id);
         },
       );
@@ -37,32 +38,34 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     return Scaffold(
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 25,
-          ),
-          TextField(
-            controller: searchController,
-            onEditingComplete: () async =>
-                await searchUser(searchController.text),
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+      backgroundColor: Colors.grey[200],
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              onEditingComplete: () async =>
+                  await searchUser(searchController.text),
+              decoration: InputDecoration(
+                hintText: 'Search',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: foundUsers.length,
-            itemBuilder: (context, index) {
-              return UserTile(
-                userId: foundUsers[index],
-              );
-            },
-          ),
-        ],
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: foundUsers.length,
+              itemBuilder: (context, index) {
+                return UserTile(
+                  userId: foundUsers[index],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

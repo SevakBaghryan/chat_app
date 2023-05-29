@@ -31,23 +31,37 @@ class _RequestTileState extends State<RequestTile> {
     });
   }
 
-  void acceptrequest() async {
+  bool answered = false;
+
+  void acceptRequest() {
+    DocumentReference currentUserRef =
+        usersCollection.doc(authData.currentUser!.uid);
+
+    DocumentReference requestedUserRef = usersCollection.doc(widget.userId);
+
+    currentUserRef.update({
+      'friends': FieldValue.arrayUnion([widget.userId])
+    });
+    requestedUserRef.update({
+      'friends': FieldValue.arrayUnion([authData.currentUser!.uid])
+    });
+
+    currentUserRef.update({
+      'friendRequests': FieldValue.arrayRemove([widget.userId])
+    });
     setState(() {
-      DocumentReference currentUserRef =
-          usersCollection.doc(authData.currentUser!.uid);
+      answered = true;
+    });
+  }
 
-      DocumentReference requestedUserRef = usersCollection.doc(widget.userId);
-
-      currentUserRef.update({
-        'friends': FieldValue.arrayUnion([widget.userId])
-      });
-      requestedUserRef.update({
-        'friends': FieldValue.arrayUnion([authData.currentUser!.uid])
-      });
-
-      currentUserRef.update({
-        'friendRequests': FieldValue.arrayRemove([widget.userId])
-      });
+  void rejectRequest() {
+    DocumentReference currentUserRef =
+        usersCollection.doc(authData.currentUser!.uid);
+    currentUserRef.update({
+      'friendRequests': FieldValue.arrayRemove([widget.userId])
+    });
+    setState(() {
+      answered = true;
     });
   }
 
@@ -68,31 +82,31 @@ class _RequestTileState extends State<RequestTile> {
             ),
             title: Text(user!.name),
             subtitle: Text(user!.email),
-            trailing: Container(
-              width: 100,
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      print('NO');
-                    },
-                    icon: Icon(
-                      Icons.cancel,
-                      size: 35,
-                      color: Colors.red,
+            trailing: answered
+                ? Text('ok')
+                : SizedBox(
+                    width: 100,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: rejectRequest,
+                          icon: const Icon(
+                            Icons.cancel,
+                            size: 35,
+                            color: Colors.red,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: acceptRequest,
+                          icon: const Icon(
+                            Icons.check_circle,
+                            size: 35,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: acceptrequest,
-                    icon: Icon(
-                      Icons.check_circle,
-                      size: 35,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           )
         : const CircularProgressIndicator();
   }

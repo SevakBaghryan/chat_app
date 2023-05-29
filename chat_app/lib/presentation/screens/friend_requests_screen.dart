@@ -1,6 +1,4 @@
-import 'package:chat_app/models/user.dart';
 import 'package:chat_app/presentation/components/request_tile.dart';
-import 'package:chat_app/presentation/components/user_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +21,6 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
     setState(() {
       requestList = myUser['friendRequests'];
     });
-    print(requestList);
   }
 
   @override
@@ -37,7 +34,7 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: Text('Friend requests'),
+          title: const Text('Friend requests'),
         ),
         body: requestList != null
             ? ListView.builder(
@@ -46,6 +43,6 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
                   userId: requestList![index],
                 ),
               )
-            : CircularProgressIndicator());
+            : const CircularProgressIndicator());
   }
 }

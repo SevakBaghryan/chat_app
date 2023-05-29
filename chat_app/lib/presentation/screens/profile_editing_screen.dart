@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:chat_app/models/user.dart';
@@ -106,7 +108,7 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
                       ),
                       (route) => false);
                 },
-                icon: Icon(Icons.check)),
+                icon: const Icon(Icons.check)),
           ),
         ],
       ),
@@ -211,7 +213,7 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
                       onPressed: () {
                         editProfileData(_secondNameTextController.text);
                       },
-                      icon: Icon(Icons.check))),
+                      icon: const Icon(Icons.check))),
             )
           ],
         ),

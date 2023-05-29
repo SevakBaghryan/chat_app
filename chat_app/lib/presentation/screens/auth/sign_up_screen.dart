@@ -11,7 +11,7 @@ import 'package:image_picker/image_picker.dart';
 
 class SignUpScreen extends StatefulWidget {
   final Function()? onTap;
-  SignUpScreen({
+  const SignUpScreen({
     super.key,
     required this.onTap,
   });
@@ -211,10 +211,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Already have an account? '),
+                    const Text('Already have an account? '),
                     GestureDetector(
                       onTap: widget.onTap,
-                      child: Text(
+                      child: const Text(
                         'SignIn now',
                         style: TextStyle(
                           color: Colors.blue,

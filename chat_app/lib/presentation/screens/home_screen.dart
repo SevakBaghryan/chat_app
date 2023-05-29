@@ -2,11 +2,8 @@ import 'package:chat_app/presentation/screens/chat_screen.dart';
 import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
 import 'package:chat_app/presentation/screens/search_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -43,11 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => FriendRequestsScreen(),
+                  builder: (context) => const FriendRequestsScreen(),
                 ),
               );
             },
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
           ),
           IconButton(
               onPressed: () {
@@ -72,8 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
             gap: 8,
             tabs: const [
               GButton(
-                icon: Icons.chat,
-                text: 'Chat',
+                icon: Icons.man,
+                text: 'Friends',
               ),
               GButton(
                 icon: Icons.search,

@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailScreen extends StatefulWidget {
-  final userId;
+  final String userId;
   const UserDetailScreen({
     required this.userId,
     super.key,
@@ -37,20 +37,22 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   }
 
   void sendFriendRequest() async {
-    print('start');
-    final userRef = usersCollection.doc(widget.userId);
+    setState(() {
+      final userRef = usersCollection.doc(widget.userId);
 
-    userRef.update({
-      'friendRequests':
-          FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+      userRef.update({
+        'friendRequests':
+            FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+      });
     });
+    getUserById(widget.userId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: const Text(''),
       ),
       body: user != null
           ? Row(

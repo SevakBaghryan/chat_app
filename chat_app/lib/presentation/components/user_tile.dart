@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class UserTile extends StatefulWidget {
-  final userId;
+  final String userId;
   const UserTile({
     required this.userId,
     super.key,
