@@ -77,6 +77,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           password: passwordTextController.text.trim(),
         );
 
+        userCredential.user!.updateDisplayName(nameTextController.text);
+
         usersCollection.doc(userCredential.user!.uid).set(
               newUser.toJson(),
             );

@@ -1,4 +1,5 @@
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/presentation/screens/chat_room_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -48,11 +49,21 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     getUserById(widget.userId);
   }
 
+  String chatRoomId(String? user1, String user2) {
+    if (user1!.toLowerCase().codeUnits[0] > user2.toLowerCase().codeUnits[0]) {
+      return '$user1$user2';
+    } else {
+      return '$user2$user1';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text(''),
+        title: Text(user != null ? user!.name : ''),
+        backgroundColor: Colors.black,
       ),
       body: user != null
           ? Row(
@@ -105,25 +116,55 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                               ),
                             )
                           : user!.friends.contains(authData.currentUser!.uid)
-                              ? InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.green,
-                                        borderRadius: BorderRadius.circular(5)),
-                                    child: const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 8, horizontal: 20),
-                                        child: Text(
-                                          'You are friends',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
+                              ? Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {},
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Colors.green,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: const Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 8, horizontal: 20),
+                                            child: Text(
+                                              'You are friends',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    const SizedBox(
+                                      width: 20,
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        String roomId = chatRoomId(
+                                            authData.currentUser!.displayName,
+                                            user!.name);
+
+                                        final userMap = user!.toJson();
+
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatRoom(
+                                              chatRoomId: roomId,
+                                              userMap: userMap,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.chat,
+                                        color: Colors.blue,
+                                      ),
+                                    )
+                                  ],
                                 )
                               : InkWell(
                                   onTap: sendFriendRequest,

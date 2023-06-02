@@ -125,9 +125,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                  onPressed: signInWithGoogle, child: const Text('Google'))
+              // const SizedBox(height: 10),
+              // ElevatedButton(
+              //     onPressed: signInWithGoogle, child: const Text('Google'))
             ],
           ),
         ),
