@@ -145,8 +145,8 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     IconButton(
                                       onPressed: () {
                                         String roomId = chatRoomId(
-                                            authData.currentUser!.displayName,
-                                            user!.name);
+                                            authData.currentUser!.email,
+                                            user!.email);
 
                                         final userMap = user!.toJson();
 
