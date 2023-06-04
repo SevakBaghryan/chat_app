@@ -2,13 +2,16 @@
 
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
-  final Function()? onTap;
-  const SignInScreen({super.key, required this.onTap});
+  final Function()? toggleScreens;
+  const SignInScreen({
+    super.key,
+    required this.toggleScreens,
+  });
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -16,51 +19,8 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final emailTextController = TextEditingController();
-
   final passwordTextController = TextEditingController();
-
-  void signIn() async {
-    showDialog(
-      context: context,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailTextController.text,
-        password: passwordTextController.text,
-      );
-      Navigator.of(context).pop();
-    } on FirebaseAuthException catch (e) {
-      Navigator.of(context).pop();
-      showMessage(e.code);
-    }
-  }
-
-  void showMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      ),
-    );
-  }
-
-  Future signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser =
-        await GoogleSignIn(scopes: ['email']).signIn();
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +64,11 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               MyButton(
                 text: 'Sign In',
-                onTap: signIn,
+                onTap: () => authService.signIn(
+                  context,
+                  emailTextController.text,
+                  passwordTextController.text,
+                ),
               ),
               const SizedBox(
                 height: 10,
@@ -114,7 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 children: [
                   const Text('Haven\'t an account yet? '),
                   GestureDetector(
-                    onTap: widget.onTap,
+                    onTap: widget.toggleScreens,
                     child: const Text(
                       'SignUp now',
                       style: TextStyle(

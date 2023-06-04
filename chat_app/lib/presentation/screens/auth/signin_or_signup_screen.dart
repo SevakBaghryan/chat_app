@@ -21,10 +21,10 @@ class _LogInOrRegisterState extends State<LogInOrRegister> {
   @override
   Widget build(BuildContext context) {
     if (showSignInScreen) {
-      return SignInScreen(onTap: toggleScreens);
+      return SignInScreen(toggleScreens: toggleScreens);
     } else {
       return SignUpScreen(
-        onTap: toggleScreens,
+        toggleScreens: toggleScreens,
       );
     }
   }

@@ -33,75 +33,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
-  void initState() {
-    getUserById(authData.currentUser!.uid);
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        user != null
-            ? Padding(
-                padding: const EdgeInsets.all(10),
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(user!.userImageUrl),
-                ),
-              )
-            : const CircularProgressIndicator(),
-        user != null
-            ? Padding(
-                padding: const EdgeInsets.only(top: 25, left: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${user!.name} ${user!.secondName}',
-                      style: const TextStyle(
-                          fontSize: 22, fontWeight: FontWeight.bold),
+    return FutureBuilder(
+      future: getUserById(authData.currentUser!.uid),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {}
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            user != null
+                ? Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(user!.userImageUrl),
                     ),
-                    Text(
-                      user!.email,
-                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ProfileEditingScreen(
-                            myUser: user!,
-                          ),
-                        ));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 20),
-                            child: Text(
-                              'Edit profile',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                  )
+                : const CircularProgressIndicator(),
+            user != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 25, left: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${user!.name} ${user!.secondName}',
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          user!.email,
+                          style:
+                              TextStyle(color: Colors.grey[600], fontSize: 16),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ProfileEditingScreen(
+                                myUser: user!,
+                              ),
+                            ));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(5)),
+                            child: const Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 20),
+                                child: Text(
+                                  'Edit profile',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              )
-            : const CircularProgressIndicator(),
-      ],
+                        )
+                      ],
+                    ),
+                  )
+                : const CircularProgressIndicator(),
+          ],
+        );
+      },
     );
   }
 }

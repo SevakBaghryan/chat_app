@@ -24,25 +24,24 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   }
 
   @override
-  void initState() {
-    getFriendRequests();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
           title: const Text('Friend requests'),
         ),
-        body: requestList != null
-            ? ListView.builder(
-                itemCount: requestList!.length,
-                itemBuilder: (context, index) => RequestTile(
-                  userId: requestList![index],
-                ),
-              )
-            : const CircularProgressIndicator());
+        body: FutureBuilder(
+          future: getFriendRequests(),
+          builder: (context, snapshot) {
+            return requestList != null
+                ? ListView.builder(
+                    itemCount: requestList!.length,
+                    itemBuilder: (context, index) => RequestTile(
+                      userId: requestList![index],
+                    ),
+                  )
+                : const CircularProgressIndicator();
+          },
+        ));
   }
 }

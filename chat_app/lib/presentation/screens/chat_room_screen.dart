@@ -32,7 +32,7 @@ class ChatRoom extends StatelessWidget {
 
       _message.clear();
     } else {
-      print('Type some text');
+      return;
     }
   }
 
@@ -97,7 +97,8 @@ class ChatRoom extends StatelessWidget {
                         ),
                       ),
                     ),
-                    IconButton(onPressed: onSendMessage, icon: Icon(Icons.send))
+                    IconButton(
+                        onPressed: onSendMessage, icon: const Icon(Icons.send))
                   ],
                 ),
               ),
@@ -115,8 +116,8 @@ class ChatRoom extends StatelessWidget {
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           color: map['sendby'] == authData.currentUser!.displayName
@@ -125,7 +126,7 @@ class ChatRoom extends StatelessWidget {
         ),
         child: Text(
           map['message'],
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
             color: Colors.white,

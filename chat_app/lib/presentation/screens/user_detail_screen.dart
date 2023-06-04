@@ -30,13 +30,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     });
   }
 
-  @override
-  void initState() {
-    getUserById(widget.userId);
-
-    super.initState();
-  }
-
   void sendFriendRequest() async {
     setState(() {
       final userRef = usersCollection.doc(widget.userId);
@@ -60,141 +53,153 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: Text(user != null ? user!.name : ''),
-        backgroundColor: Colors.black,
-      ),
-      body: user != null
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.green,
-                    backgroundImage: NetworkImage(user!.userImageUrl),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 25, left: 5),
-                  child: Column(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          title: Text(user != null ? user!.name : ''),
+          backgroundColor: Colors.black,
+        ),
+        body: FutureBuilder(
+          future: getUserById(widget.userId),
+          builder: (context, snapshot) {
+            return user != null
+                ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${user!.name} ${user!.secondName}',
-                        style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.green,
+                          backgroundImage: NetworkImage(user!.userImageUrl),
+                        ),
                       ),
-                      Text(
-                        user!.email,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      user!.friendRequests.contains(authData.currentUser!.uid)
-                          ? InkWell(
-                              onTap: () {},
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey,
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 20),
-                                    child: Text(
-                                      'Request sent',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 25, left: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${user!.name} ${user!.secondName}',
+                              style: const TextStyle(
+                                  fontSize: 22, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              user!.email,
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 16),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            user!.friendRequests
+                                    .contains(authData.currentUser!.uid)
+                                ? InkWell(
+                                    onTap: () {},
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      child: const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8, horizontal: 20),
+                                          child: Text(
+                                            'Request sent',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : user!.friends.contains(authData.currentUser!.uid)
-                              ? Row(
-                                  children: [
-                                    InkWell(
-                                      onTap: () {},
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Colors.green,
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                        child: const Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 8, horizontal: 20),
-                                            child: Text(
-                                              'You are friends',
-                                              style: TextStyle(
+                                  )
+                                : user!.friends
+                                        .contains(authData.currentUser!.uid)
+                                    ? Row(
+                                        children: [
+                                          InkWell(
+                                            onTap: () {},
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(5)),
+                                              child: const Center(
+                                                child: Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 8,
+                                                      horizontal: 20),
+                                                  child: Text(
+                                                    'You are friends',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              String roomId = chatRoomId(
+                                                  authData.currentUser!.email,
+                                                  user!.email);
+
+                                              final userMap = user!.toJson();
+
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatRoom(
+                                                    chatRoomId: roomId,
+                                                    userMap: userMap,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            icon: const Icon(
+                                              Icons.chat,
+                                              color: Colors.blue,
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    : InkWell(
+                                        onTap: sendFriendRequest,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: Colors.blue,
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                          child: const Center(
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 8,
+                                                horizontal: 20,
+                                              ),
+                                              child: Text(
+                                                'Add Friend +',
+                                                style: TextStyle(
                                                   color: Colors.white,
-                                                  fontWeight: FontWeight.bold),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
-                                    IconButton(
-                                      onPressed: () {
-                                        String roomId = chatRoomId(
-                                            authData.currentUser!.email,
-                                            user!.email);
-
-                                        final userMap = user!.toJson();
-
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => ChatRoom(
-                                              chatRoomId: roomId,
-                                              userMap: userMap,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.chat,
-                                        color: Colors.blue,
-                                      ),
-                                    )
-                                  ],
-                                )
-                              : InkWell(
-                                  onTap: sendFriendRequest,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(5)),
-                                    child: const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: 8,
-                                          horizontal: 20,
-                                        ),
-                                        child: Text(
-                                          'Add Friend +',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-              ],
-            )
-          : const CircularProgressIndicator(),
-    );
+                  )
+                : const CircularProgressIndicator();
+          },
+        ));
   }
 }

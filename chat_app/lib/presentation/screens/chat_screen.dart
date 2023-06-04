@@ -24,34 +24,33 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
-  void initState() {
-    getFriends();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(10),
+        const Padding(
+          padding: EdgeInsets.all(10),
           child: Text(
             'My Friends',
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
-        friendsList != null
-            ? ListView.builder(
-                shrinkWrap: true,
-                itemCount: friendsList!.length,
-                itemBuilder: (context, index) => UserTile(
-                  userId: friendsList![index],
-                ),
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
-              ),
+        FutureBuilder(
+          future: getFriends(),
+          builder: (context, snapshot) {
+            return friendsList != null
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: friendsList!.length,
+                    itemBuilder: (context, index) => UserTile(
+                      userId: friendsList![index],
+                    ),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(),
+                  );
+          },
+        )
       ],
     );
   }

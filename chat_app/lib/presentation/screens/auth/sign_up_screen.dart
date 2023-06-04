@@ -1,19 +1,16 @@
 import 'dart:io';
 
-import 'package:chat_app/models/user.dart';
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final Function()? onTap;
+  final Function()? toggleScreens;
   const SignUpScreen({
     super.key,
-    required this.onTap,
+    required this.toggleScreens,
   });
 
   @override
@@ -22,84 +19,12 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final emailTextController = TextEditingController();
-
   final nameTextController = TextEditingController();
-
   final secondNameTextController = TextEditingController();
-
   final passwordTextController = TextEditingController();
-
   final confirmPasswordTextController = TextEditingController();
-  final usersCollection = FirebaseFirestore.instance.collection('Users');
-  final authData = FirebaseAuth.instance;
-  final authSrevises = FirebaseAuth.instance;
 
-  void signUp() async {
-    if (image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pick an image')),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      if (passwordTextController.text != confirmPasswordTextController.text) {
-        Navigator.pop(context);
-        showMessage("Password don't match");
-        return;
-      }
-
-      try {
-        String uniqueName = DateTime.now().millisecondsSinceEpoch.toString();
-
-        Reference storageReference = FirebaseStorage.instance.ref();
-        Reference bucketRef = storageReference.child('images');
-        Reference imageRef = bucketRef.child(uniqueName);
-
-        final snapshot =
-            await imageRef.putFile(image!).whenComplete(() => null);
-
-        final imageUrl = await snapshot.ref.getDownloadURL();
-
-        final newUser = AppUser(
-          userImageUrl: imageUrl,
-          email: emailTextController.text,
-          name: nameTextController.text,
-          secondName: secondNameTextController.text,
-        );
-
-        final userCredential = await authData.createUserWithEmailAndPassword(
-          email: emailTextController.text.trim(),
-          password: passwordTextController.text.trim(),
-        );
-
-        userCredential.user!.updateDisplayName(nameTextController.text);
-
-        usersCollection.doc(userCredential.user!.uid).set(
-              newUser.toJson(),
-            );
-        if (mounted) {
-          Navigator.pop(context);
-        }
-      } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
-        showMessage(e.code);
-      }
-    }
-  }
-
-  void showMessage(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      ),
-    );
-  }
+  final authSrevice = AuthService();
 
   File? image;
 
@@ -126,13 +51,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.lock,
-                  size: 100,
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
                 Text(
                   'Sign In and Start Chat With Your Friends',
                   style: TextStyle(color: Colors.grey[700]),
@@ -205,7 +123,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 MyButton(
                   text: 'Sign Up',
-                  onTap: signUp,
+                  onTap: () => authSrevice.signUp(
+                    context,
+                    emailTextController.text,
+                    nameTextController.text,
+                    secondNameTextController.text,
+                    passwordTextController.text,
+                    confirmPasswordTextController.text,
+                    image,
+                  ),
                 ),
                 const SizedBox(
                   height: 10,
@@ -215,7 +141,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     const Text('Already have an account? '),
                     GestureDetector(
-                      onTap: widget.onTap,
+                      onTap: widget.toggleScreens,
                       child: const Text(
                         'SignIn now',
                         style: TextStyle(
