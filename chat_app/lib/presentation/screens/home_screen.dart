@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
             gap: 8,
             tabs: const [
               GButton(
-                icon: Icons.man,
+                icon: Icons.people,
                 text: 'Friends',
               ),
               GButton(

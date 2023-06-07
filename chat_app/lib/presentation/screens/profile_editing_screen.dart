@@ -198,22 +198,24 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
             TextField(
               controller: _secondNameTextController,
               decoration: InputDecoration(
-                  hintText: widget.myUser.secondName,
-                  enabledBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                  labelText: 'Second Name',
-                  labelStyle: const TextStyle(
-                    color: Colors.black,
-                  ),
-                  suffixIcon: IconButton(
-                      onPressed: () {
-                        editProfileData(_secondNameTextController.text);
-                      },
-                      icon: const Icon(Icons.check))),
+                hintText: widget.myUser.secondName,
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                labelText: 'Second Name',
+                labelStyle: const TextStyle(
+                  color: Colors.black,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    editProfileData(_secondNameTextController.text);
+                  },
+                  icon: const Icon(Icons.check),
+                ),
+              ),
             )
           ],
         ),

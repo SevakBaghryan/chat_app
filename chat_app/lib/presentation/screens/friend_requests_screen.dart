@@ -14,15 +14,6 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
   final authData = FirebaseAuth.instance;
   final usersCOllection = FirebaseFirestore.instance.collection('Users');
 
-  List? requestList;
-
-  Future<void> getFriendRequests() async {
-    final myUser = await usersCOllection.doc(authData.currentUser!.uid).get();
-    setState(() {
-      requestList = myUser['friendRequests'];
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,17 +21,22 @@ class _FriendRequestsScreenState extends State<FriendRequestsScreen> {
           backgroundColor: Colors.black,
           title: const Text('Friend requests'),
         ),
-        body: FutureBuilder(
-          future: getFriendRequests(),
+        body: StreamBuilder(
+          stream: usersCOllection.doc(authData.currentUser!.uid).snapshots(),
           builder: (context, snapshot) {
-            return requestList != null
-                ? ListView.builder(
-                    itemCount: requestList!.length,
-                    itemBuilder: (context, index) => RequestTile(
-                      userId: requestList![index],
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: !snapshot.hasData
+                  ? Container()
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data!['friendRequests'].length,
+                      itemBuilder: (context, index) {
+                        return RequestTile(
+                            userId: snapshot.data!['friendRequests'][index]);
+                      },
                     ),
-                  )
-                : const CircularProgressIndicator();
+            );
           },
         ));
   }

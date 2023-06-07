@@ -14,15 +14,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final authData = FirebaseAuth.instance;
   final usersCOllection = FirebaseFirestore.instance.collection('Users');
 
-  List? friendsList;
-
-  Future<void> getFriends() async {
-    final myUser = await usersCOllection.doc(authData.currentUser!.uid).get();
-    setState(() {
-      friendsList = myUser['friends'];
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,20 +26,22 @@ class _ChatScreenState extends State<ChatScreen> {
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
         ),
-        FutureBuilder(
-          future: getFriends(),
+        StreamBuilder(
+          stream: usersCOllection.doc(authData.currentUser!.uid).snapshots(),
           builder: (context, snapshot) {
-            return friendsList != null
-                ? ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: friendsList!.length,
-                    itemBuilder: (context, index) => UserTile(
-                      userId: friendsList![index],
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: !snapshot.hasData
+                  ? Container()
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data!['friends'].length,
+                      itemBuilder: (context, index) {
+                        return UserTile(
+                            userId: snapshot.data!['friends'][index]);
+                      },
                     ),
-                  )
-                : const Center(
-                    child: CircularProgressIndicator(),
-                  );
+            );
           },
         )
       ],

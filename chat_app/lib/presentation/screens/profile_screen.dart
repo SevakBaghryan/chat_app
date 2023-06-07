@@ -12,10 +12,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  void signOut() {
-    FirebaseAuth.instance.signOut();
-  }
-
   final authData = FirebaseAuth.instance;
 
   final usersCollection = FirebaseFirestore.instance.collection('Users');

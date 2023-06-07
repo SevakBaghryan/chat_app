@@ -2,6 +2,7 @@ import 'package:chat_app/models/user.dart';
 import 'package:chat_app/presentation/screens/chat_room_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserDetailScreen extends StatefulWidget {
@@ -48,6 +49,46 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     } else {
       return '$user2$user1';
     }
+  }
+
+  void onUnfriend() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text("Unfriend"),
+        content: const Text("Do you want to remove this friend?"),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () {
+              unfriend();
+              Navigator.of(context).pop();
+            },
+            isDefaultAction: true,
+            child: const Text('Yes'),
+          ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("No"),
+          )
+        ],
+      ),
+    );
+  }
+
+  void unfriend() {
+    DocumentReference currentUserRef =
+        usersCollection.doc(authData.currentUser!.uid);
+
+    DocumentReference removingUserRef = usersCollection.doc(widget.userId);
+    setState(() {
+      currentUserRef.update({
+        'friends': FieldValue.arrayRemove([widget.userId])
+      });
+
+      removingUserRef.update({
+        'friends': FieldValue.arrayRemove([authData.currentUser!.uid])
+      });
+    });
   }
 
   @override
@@ -119,7 +160,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                                     ? Row(
                                         children: [
                                           InkWell(
-                                            onTap: () {},
+                                            onTap: onUnfriend,
                                             child: Container(
                                               decoration: BoxDecoration(
                                                   color: Colors.green,
