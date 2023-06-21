@@ -1,3 +1,7 @@
+import 'package:chat_app/presentation/components/file_message.dart';
+import 'package:chat_app/presentation/components/image_message.dart';
+import 'package:chat_app/presentation/components/message_bubble.dart';
+import 'package:chat_app/services/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -15,26 +19,7 @@ class ChatRoom extends StatelessWidget {
   final TextEditingController _message = TextEditingController();
   final FirebaseAuth authData = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  void onSendMessage() async {
-    if (_message.text.isNotEmpty) {
-      Map<String, dynamic> message = {
-        'sendby': authData.currentUser!.displayName,
-        'message': _message.text,
-        'time': FieldValue.serverTimestamp(),
-      };
-
-      await _firestore
-          .collection('chatroom')
-          .doc(chatRoomId)
-          .collection('chats')
-          .add(message);
-
-      _message.clear();
-    } else {
-      return;
-    }
-  }
+  final chatServise = ChatService();
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +33,7 @@ class ChatRoom extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: size.height / 1.25,
               child: StreamBuilder(
                 stream: _firestore
@@ -65,7 +50,11 @@ class ChatRoom extends StatelessWidget {
                           Map<String, dynamic> map =
                               snapshot.data!.docs[index].data();
 
-                          return message(size, map);
+                          return map['type'] == "text"
+                              ? MessageBubble(map: map)
+                              : map['type'] == "img"
+                                  ? ImageMessage(map: map, size: size)
+                                  : FileMessage(size: size, map: map);
                         });
                   } else {
                     return Container();
@@ -77,19 +66,31 @@ class ChatRoom extends StatelessWidget {
               height: size.height / 10,
               width: size.width,
               alignment: Alignment.center,
-              child: Container(
+              child: SizedBox(
                 height: size.height / 12,
                 width: size.width / 1.1,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
+                    SizedBox(
                       height: size.height / 18,
                       width: size.width / 1.3,
                       child: TextField(
-                        onSubmitted: (value) => onSendMessage(),
+                        onSubmitted: (value) =>
+                            chatServise.onSendMessage(_message, chatRoomId),
                         controller: _message,
                         decoration: InputDecoration(
+                          icon: IconButton(
+                            onPressed: () {
+                              chatServise.pickFile(chatRoomId);
+                            },
+                            icon: const Icon(Icons.file_copy),
+                          ),
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                chatServise.getImage(chatRoomId);
+                              },
+                              icon: const Icon(Icons.image)),
                           hintText: 'Send message',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -98,39 +99,15 @@ class ChatRoom extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                        onPressed: onSendMessage, icon: const Icon(Icons.send))
+                        onPressed: () {
+                          chatServise.onSendMessage(_message, chatRoomId);
+                        },
+                        icon: const Icon(Icons.send))
                   ],
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget message(Size size, Map<String, dynamic> map) {
-    return Container(
-      width: size.width,
-      alignment: map['sendby'] == authData.currentUser!.displayName
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: map['sendby'] == authData.currentUser!.displayName
-              ? Colors.blue
-              : Colors.grey,
-        ),
-        child: Text(
-          map['message'],
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
         ),
       ),
     );

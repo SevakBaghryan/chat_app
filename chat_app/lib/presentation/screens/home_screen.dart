@@ -2,6 +2,7 @@ import 'package:chat_app/presentation/screens/chat_screen.dart';
 import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
 import 'package:chat_app/presentation/screens/search_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -36,16 +37,60 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Chat App'),
         backgroundColor: Colors.black,
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const FriendRequestsScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.notifications),
-          ),
+          StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .snapshots(),
+              builder: (context, snapshots) {
+                if (!snapshots.hasData) {
+                  return const CircularProgressIndicator();
+                } else {
+                  if (snapshots.data!['friendRequests'].length != 0) {
+                    return Stack(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const FriendRequestsScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.notifications),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4.5),
+                            decoration: const BoxDecoration(
+                                color: Colors.red, shape: BoxShape.circle),
+                            child: Text(
+                              snapshots.data!['friendRequests'].length
+                                  .toString(),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  } else {
+                    return IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const FriendRequestsScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.notifications),
+                    );
+                  }
+                }
+              }),
           IconButton(
               onPressed: () {
                 FirebaseAuth.instance.signOut();

@@ -1,11 +1,10 @@
 import 'package:chat_app/models/user.dart';
-import 'package:chat_app/presentation/screens/user_detail_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RequestTile extends StatefulWidget {
-  final userId;
+  final String userId;
 
   const RequestTile({
     required this.userId,
@@ -83,7 +82,7 @@ class _RequestTileState extends State<RequestTile> {
             title: Text(user!.name),
             subtitle: Text(user!.email),
             trailing: answered
-                ? Text('ok')
+                ? const Text('ok')
                 : SizedBox(
                     width: 100,
                     child: Row(

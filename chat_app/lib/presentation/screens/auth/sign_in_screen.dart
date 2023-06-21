@@ -3,7 +3,6 @@
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
 import 'package:chat_app/services/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignInScreen extends StatefulWidget {
