@@ -16,13 +16,15 @@ class FileMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Reference ref = FirebaseStorage.instance.refFromURL(map['message']);
+
     return Container(
       width: size.width,
       alignment: map['sendby'] == authData.currentUser!.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Container(
-        width: 100,
+        width: 200,
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
         decoration: BoxDecoration(
@@ -32,28 +34,42 @@ class FileMessage extends StatelessWidget {
               : Colors.grey,
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'File',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            SizedBox(
+              width: 100,
+              child: Text(
+                ref.name,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            IconButton(
-              onPressed: () {
+            GestureDetector(
+              onTap: () {
                 showDialog(
                   context: context,
                   builder: (context) => DownloadingDialog(
-                    ref: FirebaseStorage.instance.refFromURL(
-                      map['message'],
-                    ),
+                    fileUrl: map['message'],
                   ),
                 );
               },
-              icon: const Icon(
-                Icons.download,
-                color: Colors.white,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3, //                   <--- border width here
+                  ),
+                ),
+                child: const Icon(
+                  Icons.download,
+                  color: Colors.white,
+                  size: 39,
+                ),
               ),
             ),
           ],

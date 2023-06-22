@@ -1,44 +1,34 @@
-import 'package:dio/dio.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 
 class DownloadingDialog extends StatefulWidget {
-  final Reference ref;
-  const DownloadingDialog({Key? key, required this.ref}) : super(key: key);
+  final String fileUrl;
+  const DownloadingDialog({
+    Key? key,
+    required this.fileUrl,
+  }) : super(key: key);
 
   @override
   State<DownloadingDialog> createState() => _DownloadingDialogState();
 }
 
 class _DownloadingDialogState extends State<DownloadingDialog> {
-  Dio dio = Dio();
-  double progress = 0.0;
+  double _progress = 0.0;
 
-  void startDownloading() async {
-    final url = await widget.ref.getDownloadURL();
-
-    final fileName = widget.ref.name;
-
-    String path = await _getFilePath(fileName);
-
-    await dio.download(
-      url,
-      path,
-      onReceiveProgress: (recivedBytes, totalBytes) {
-        setState(() {
-          progress = recivedBytes / totalBytes;
-        });
+  void startDownloading() {
+    FileDownloader.downloadFile(
+      url: widget.fileUrl,
+      onProgress: (fileName, progress) {
+        setState(
+          () {
+            _progress = progress;
+          },
+        );
       },
-      deleteOnError: true,
-    ).then((_) {
-      Navigator.pop(context);
-    });
-  }
-
-  Future<String> _getFilePath(String filename) async {
-    final dir = await getApplicationDocumentsDirectory();
-    return "${dir.path}/$filename";
+      onDownloadCompleted: (path) {
+        Navigator.of(context).pop();
+      },
+    );
   }
 
   @override
@@ -49,7 +39,7 @@ class _DownloadingDialogState extends State<DownloadingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    String downloadingprogress = (progress * 100).toInt().toString();
+    String downloadingprogress = (_progress).toInt().toString();
 
     return AlertDialog(
       backgroundColor: Colors.black,
