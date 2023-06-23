@@ -1,4 +1,4 @@
-import 'package:chat_app/presentation/screens/chat_screen.dart';
+import 'package:chat_app/presentation/screens/chats_screen.dart';
 import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
 import 'package:chat_app/presentation/screens/search_screen.dart';
@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List _screens = [
-    const ChatScreen(),
+    const ChatsScreen(),
     const SearchScreen(),
     const ProfileScreen(),
   ];
@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: const Text('Chat App'),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color.fromARGB(255, 59, 113, 151),
         actions: [
           StreamBuilder(
               stream: FirebaseFirestore.instance
@@ -100,22 +100,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
-        color: Colors.black,
+        color: const Color.fromARGB(255, 59, 113, 151),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           child: GNav(
             selectedIndex: _selectedIndex,
-            backgroundColor: Colors.black,
+            backgroundColor: const Color.fromARGB(255, 59, 113, 151),
             color: Colors.white,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.grey.shade800,
+            tabBackgroundColor: const Color.fromARGB(100, 161, 225, 250),
             padding: const EdgeInsets.all(13),
             onTabChange: (index) => navigateBottomBar(index),
             gap: 8,
             tabs: const [
               GButton(
-                icon: Icons.people,
-                text: 'Friends',
+                icon: Icons.chat,
+                text: 'Chats',
               ),
               GButton(
                 icon: Icons.search,

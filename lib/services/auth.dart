@@ -23,9 +23,8 @@ class AuthService {
         email: email,
         password: password,
       );
-      Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop();
     } on FirebaseAuthException catch (e) {
-      Navigator.of(context).pop();
       showMessage(e.code, context);
     }
   }
@@ -110,7 +109,7 @@ class AuthService {
               newUser.toJson(),
             );
 
-        Navigator.pop(context);
+        if (context.mounted) Navigator.of(context).pop();
       } on FirebaseAuthException catch (e) {
         Navigator.pop(context);
         showMessage(e.code, context);

@@ -14,8 +14,8 @@ class ChatService {
 
   // SEND MESSAGE
 
-  void onSendMessage(
-      TextEditingController messageTextController, String chatRoomId) async {
+  void onSendMessage(TextEditingController messageTextController,
+      String chatRoomId, String collectionName) async {
     if (messageTextController.text.isNotEmpty) {
       Map<String, dynamic> message = {
         'sendby': authData.currentUser!.displayName,
@@ -25,7 +25,7 @@ class ChatService {
       };
 
       await firestore
-          .collection('chatroom')
+          .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
           .add(message);
@@ -40,25 +40,25 @@ class ChatService {
 
   File? imageFile;
 
-  Future getImage(String chatRoomId) async {
+  Future getImage(String chatRoomId, String collectionName) async {
     ImagePicker picker = ImagePicker();
 
     await picker.pickImage(source: ImageSource.gallery).then((xFile) {
       if (xFile != null) {
         imageFile = File(xFile.path);
-        uploadImage(chatRoomId);
+        uploadImage(chatRoomId, collectionName);
       }
     });
   }
 
   // UPLOAD IMAGE
 
-  Future uploadImage(String chatRoomId) async {
+  Future uploadImage(String chatRoomId, String collectionName) async {
     String fileName = const Uuid().v1();
     int status = 1;
 
     await firestore
-        .collection('chatroom')
+        .collection(collectionName)
         .doc(chatRoomId)
         .collection('chats')
         .doc(fileName)
@@ -75,7 +75,7 @@ class ChatService {
     // ignore: body_might_complete_normally_catch_error
     var uploadTask = await ref.putFile(imageFile!).catchError((error) async {
       await firestore
-          .collection('chatroom')
+          .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
@@ -88,7 +88,7 @@ class ChatService {
       String imageUrl = await uploadTask.ref.getDownloadURL();
 
       await firestore
-          .collection('chatroom')
+          .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
@@ -101,23 +101,23 @@ class ChatService {
   PlatformFile? pickedFile;
   UploadTask? uploadTask;
 
-  Future pickFile(String chatRoomId) async {
+  Future pickFile(String chatRoomId, String collectionName) async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
 
     pickedFile = result.files.first;
 
-    uploadFile(chatRoomId);
+    uploadFile(chatRoomId, collectionName);
   }
 
   // UPLOAD FILE
 
-  Future uploadFile(String chatRoomId) async {
+  Future uploadFile(String chatRoomId, String collectionName) async {
     String fileName = const Uuid().v1();
     int status = 1;
 
     await firestore
-        .collection('chatroom')
+        .collection(collectionName)
         .doc(chatRoomId)
         .collection('chats')
         .doc(fileName)
@@ -135,7 +135,7 @@ class ChatService {
     // ignore: body_might_complete_normally_catch_error
     var uploadTask = await ref.putFile(file).catchError((error) async {
       await firestore
-          .collection('chatroom')
+          .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
@@ -148,7 +148,7 @@ class ChatService {
       String fileUrl = await uploadTask.ref.getDownloadURL();
 
       await firestore
-          .collection('chatroom')
+          .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
