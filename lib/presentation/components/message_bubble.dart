@@ -1,28 +1,29 @@
+import 'package:chat_app/models/message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
-  final Map<String, dynamic> map;
-  MessageBubble({super.key, required this.map});
+  final Message message;
+  MessageBubble({super.key, required this.message});
 
   final authData = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: map['sendby'] == authData.currentUser!.displayName
+      alignment: message.sendBy == authData.currentUser!.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: map['sendby'] == authData.currentUser!.displayName
+        crossAxisAlignment: message.sendBy == authData.currentUser!.displayName
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text(
-              map['sendby'],
-              style: TextStyle(color: Colors.grey),
+              message.sendBy,
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
           Container(
@@ -30,12 +31,12 @@ class MessageBubble extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: map['sendby'] == authData.currentUser!.displayName
+              color: message.sendBy == authData.currentUser!.displayName
                   ? Colors.blue
                   : Colors.grey,
             ),
             child: Text(
-              map['message'],
+              message.messageText,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

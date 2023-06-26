@@ -1,3 +1,4 @@
+import 'package:chat_app/models/group_member.dart';
 import 'package:chat_app/presentation/screens/group_chats/create_group_chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,9 +16,13 @@ class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
   List<Map<String, dynamic>> membersList = [];
+
   bool isLoading = false;
+
   Map<String, dynamic>? userMap;
+
   String? userId;
 
   @override
@@ -33,13 +38,14 @@ class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
         .get()
         .then((map) {
       setState(() {
-        membersList.add({
-          "name": map['name'],
-          "email": map['email'],
-          'userImageUrl': map['userImageUrl'],
-          "uid": _auth.currentUser!.uid,
-          "isAdmin": true,
-        });
+        GroupMember groupMember = GroupMember(
+            uid: _auth.currentUser!.uid,
+            userImageUrl: map['userImageUrl'],
+            email: map['email'],
+            name: map['name'],
+            isAdmin: true);
+
+        membersList.add(groupMember.toJson());
       });
     });
   }
@@ -71,14 +77,14 @@ class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
     }
 
     if (!isAlreadyExist) {
+      GroupMember newMember = GroupMember(
+          uid: userId as String,
+          userImageUrl: userMap!['userImageUrl'],
+          email: userMap!['email'],
+          name: userMap!['name'],
+          isAdmin: false);
       setState(() {
-        membersList.add({
-          "name": userMap!['name'],
-          "email": userMap!['email'],
-          'userImageUrl': userMap!['userImageUrl'],
-          "uid": userId,
-          "isAdmin": false,
-        });
+        membersList.add(newMember.toJson());
 
         userMap = null;
       });

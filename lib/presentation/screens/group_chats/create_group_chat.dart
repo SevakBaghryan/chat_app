@@ -1,3 +1,5 @@
+import 'package:chat_app/models/group.dart';
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/presentation/screens/group_chats/group_chats_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,10 +28,9 @@ class _CreateGroupState extends State<CreateGroup> {
 
     String groupId = const Uuid().v1();
 
-    await _firestore.collection('groups').doc(groupId).set({
-      "members": widget.membersList,
-      "id": groupId,
-    });
+    Group newGroup = Group(members: widget.membersList, groupId: groupId);
+
+    await _firestore.collection('groups').doc(groupId).set(newGroup.toJson());
 
     for (int i = 0; i < widget.membersList.length; i++) {
       String uid = widget.membersList[i]['uid'];
@@ -45,11 +46,18 @@ class _CreateGroupState extends State<CreateGroup> {
       });
     }
 
-    await _firestore.collection('groups').doc(groupId).collection('chats').add({
-      "message": "${_auth.currentUser!.displayName} Created This Group.",
-      'time': FieldValue.serverTimestamp(),
-      "type": "notify",
-    });
+    Message message = Message(
+      messageText: "${_auth.currentUser!.displayName} Created This Group.",
+      sendBy: '',
+      type: 'notify',
+      time: DateTime.now().toIso8601String(),
+    );
+
+    await _firestore
+        .collection('groups')
+        .doc(groupId)
+        .collection('chats')
+        .add(message.toJson());
 
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const GroupChatsScreen()),

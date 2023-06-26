@@ -1,3 +1,4 @@
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/presentation/components/file_message.dart';
 import 'package:chat_app/presentation/components/image_message.dart';
 import 'package:chat_app/presentation/components/message_bubble.dart';
@@ -49,12 +50,13 @@ class ChatRoom extends StatelessWidget {
                         itemBuilder: (context, index) {
                           Map<String, dynamic> map =
                               snapshot.data!.docs[index].data();
+                          Message message = Message.fromJson(map);
 
-                          return map['type'] == "text"
-                              ? MessageBubble(map: map)
-                              : map['type'] == "img"
-                                  ? ImageMessage(map: map, size: size)
-                                  : FileMessage(size: size, map: map);
+                          return message.type == "text"
+                              ? MessageBubble(message: message)
+                              : message.type == "img"
+                                  ? ImageMessage(message: message, size: size)
+                                  : FileMessage(size: size, message: message);
                         });
                   } else {
                     return Container();

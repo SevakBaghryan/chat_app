@@ -165,14 +165,12 @@ class _GroupInfoState extends State<GroupInfo> {
                             width: size.width / 20,
                           ),
                           Expanded(
-                            child: Container(
-                              child: Text(
-                                widget.groupName,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: size.width / 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            child: Text(
+                              widget.groupName,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: size.width / 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),

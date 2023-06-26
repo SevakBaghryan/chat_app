@@ -1,3 +1,4 @@
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/presentation/components/downloading_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -5,34 +6,34 @@ import 'package:flutter/material.dart';
 
 class FileMessage extends StatelessWidget {
   final Size size;
-  final Map<String, dynamic> map;
+  final Message message;
   FileMessage({
     super.key,
     required this.size,
-    required this.map,
+    required this.message,
   });
 
   final authData = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
-    Reference ref = FirebaseStorage.instance.refFromURL(map['message']);
+    Reference ref = FirebaseStorage.instance.refFromURL(message.messageText);
 
     return Container(
       width: size.width,
-      alignment: map['sendby'] == authData.currentUser!.displayName
+      alignment: message.sendBy == authData.currentUser!.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: map['sendby'] == authData.currentUser!.displayName
+        crossAxisAlignment: message.sendBy == authData.currentUser!.displayName
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Text(
-              map['sendby'],
-              style: TextStyle(color: Colors.grey),
+              message.sendBy,
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
           Container(
@@ -41,7 +42,7 @@ class FileMessage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: map['sendby'] == authData.currentUser!.displayName
+              color: message.sendBy == authData.currentUser!.displayName
                   ? Colors.blue
                   : Colors.grey,
             ),
@@ -65,7 +66,7 @@ class FileMessage extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (context) => DownloadingDialog(
-                        fileUrl: map['message'],
+                        fileUrl: message.messageText,
                       ),
                     );
                   },

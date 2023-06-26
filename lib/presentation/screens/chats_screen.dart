@@ -4,11 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-//  255, 1, 97, 112
-//  0, 147, 147
-//  0, 224, 198
-//
-
 class ChatsScreen extends StatelessWidget {
   const ChatsScreen({super.key});
 

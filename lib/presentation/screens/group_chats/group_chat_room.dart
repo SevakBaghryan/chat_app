@@ -1,3 +1,4 @@
+import 'package:chat_app/models/message.dart';
 import 'package:chat_app/presentation/components/file_message.dart';
 import 'package:chat_app/presentation/components/image_message.dart';
 import 'package:chat_app/presentation/components/message_bubble.dart';
@@ -59,12 +60,13 @@ class GroupChatRoom extends StatelessWidget {
                         itemBuilder: (context, index) {
                           Map<String, dynamic> map =
                               snapshot.data!.docs[index].data();
+                          Message message = Message.fromJson(map);
 
-                          return map['type'] == "text"
-                              ? MessageBubble(map: map)
-                              : map['type'] == "img"
-                                  ? ImageMessage(map: map, size: size)
-                                  : map['type'] == 'notify'
+                          return message.type == "text"
+                              ? MessageBubble(message: message)
+                              : message.type == "img"
+                                  ? ImageMessage(message: message, size: size)
+                                  : message.type == 'notify'
                                       ? Container(
                                           width: size.width,
                                           alignment: Alignment.center,
@@ -79,7 +81,7 @@ class GroupChatRoom extends StatelessWidget {
                                               color: Colors.black38,
                                             ),
                                             child: Text(
-                                              map['message'],
+                                              message.messageText,
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
@@ -88,7 +90,8 @@ class GroupChatRoom extends StatelessWidget {
                                             ),
                                           ),
                                         )
-                                      : FileMessage(size: size, map: map);
+                                      : FileMessage(
+                                          size: size, message: message);
                         });
                   } else {
                     return Container();
