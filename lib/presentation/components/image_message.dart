@@ -1,12 +1,13 @@
+import 'package:chat_app/models/message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ImageMessage extends StatelessWidget {
   final Size size;
-  final Map<String, dynamic> map;
+  final Message message;
   ImageMessage({
     super.key,
-    required this.map,
+    required this.message,
     required this.size,
   });
 
@@ -18,26 +19,26 @@ class ImageMessage extends StatelessWidget {
       height: size.height / 2.2,
       width: size.width,
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-      alignment: map['sendby'] == authData.currentUser!.displayName
+      alignment: message.sendBy == authData.currentUser!.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: map['sendby'] == authData.currentUser!.displayName
+        crossAxisAlignment: message.sendBy == authData.currentUser!.displayName
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
             child: Text(
-              map['sendby'],
-              style: TextStyle(color: Colors.grey),
+              message.sendBy,
+              style: const TextStyle(color: Colors.grey),
             ),
           ),
           InkWell(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => ShowImage(
-                  imageUrl: map['message'],
+                  imageUrl: message.messageText,
                 ),
               ),
             ),
@@ -45,10 +46,10 @@ class ImageMessage extends StatelessWidget {
               height: size.height / 2.5,
               width: size.width / 2,
               decoration: BoxDecoration(border: Border.all()),
-              alignment: map['message'] != "" ? null : Alignment.center,
-              child: map['message'] != ""
+              alignment: message.messageText != "" ? null : Alignment.center,
+              child: message.messageText != ""
                   ? Image.network(
-                      map['message'],
+                      message.messageText,
                       fit: BoxFit.cover,
                     )
                   : const CircularProgressIndicator(),

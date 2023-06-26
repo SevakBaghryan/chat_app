@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chat_app/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,18 +18,18 @@ class ChatService {
   void onSendMessage(TextEditingController messageTextController,
       String chatRoomId, String collectionName) async {
     if (messageTextController.text.isNotEmpty) {
-      Map<String, dynamic> message = {
-        'sendby': authData.currentUser!.displayName,
-        'message': messageTextController.text,
-        "type": "text",
-        'time': FieldValue.serverTimestamp(),
-      };
+      final message = Message(
+        messageText: messageTextController.text,
+        sendBy: authData.currentUser!.displayName as String,
+        type: 'text',
+        time: DateTime.now().toIso8601String(),
+      );
 
       await firestore
           .collection(collectionName)
           .doc(chatRoomId)
           .collection('chats')
-          .add(message);
+          .add(message.toJson());
 
       messageTextController.clear();
     } else {
@@ -57,17 +58,19 @@ class ChatService {
     String fileName = const Uuid().v1();
     int status = 1;
 
+    final message = Message(
+      messageText: '',
+      sendBy: authData.currentUser!.displayName as String,
+      type: 'img',
+      time: DateTime.now().toIso8601String(),
+    );
+
     await firestore
         .collection(collectionName)
         .doc(chatRoomId)
         .collection('chats')
         .doc(fileName)
-        .set({
-      "sendby": authData.currentUser!.displayName,
-      "message": "",
-      "type": "img",
-      "time": FieldValue.serverTimestamp(),
-    });
+        .set(message.toJson());
 
     var ref =
         FirebaseStorage.instance.ref().child('images').child("$fileName.jpg");
@@ -92,7 +95,7 @@ class ChatService {
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
-          .update({"message": imageUrl});
+          .update({"messageText": imageUrl});
     }
   }
 
@@ -116,17 +119,19 @@ class ChatService {
     String fileName = const Uuid().v1();
     int status = 1;
 
+    final message = Message(
+      messageText: '',
+      sendBy: authData.currentUser!.displayName as String,
+      type: 'file',
+      time: DateTime.now().toIso8601String(),
+    );
+
     await firestore
         .collection(collectionName)
         .doc(chatRoomId)
         .collection('chats')
         .doc(fileName)
-        .set({
-      "sendby": authData.currentUser!.displayName,
-      "message": "",
-      "type": "file",
-      "time": FieldValue.serverTimestamp(),
-    });
+        .set(message.toJson());
 
     final path = 'files/$fileName';
     final file = File(pickedFile!.path!);
@@ -152,7 +157,7 @@ class ChatService {
           .doc(chatRoomId)
           .collection('chats')
           .doc(fileName)
-          .update({"message": fileUrl});
+          .update({"messageText": fileUrl});
     }
   }
 }
