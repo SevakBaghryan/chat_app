@@ -24,7 +24,9 @@ class FileMessage extends StatelessWidget {
           ? Alignment.centerRight
           : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: map['sendby'] == authData.currentUser!.displayName
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
