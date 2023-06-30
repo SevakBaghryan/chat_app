@@ -1,5 +1,5 @@
-import 'package:chat_app/models/group.dart';
-import 'package:chat_app/models/message.dart';
+import 'package:chat_app/domain/models/group.dart';
+import 'package:chat_app/domain/models/message.dart';
 import 'package:chat_app/presentation/screens/group_chats/group_chats_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

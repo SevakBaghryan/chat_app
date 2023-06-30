@@ -1,17 +1,29 @@
 import 'dart:io';
 
-import 'package:chat_app/models/user.dart';
+import 'package:chat_app/domain/models/user.dart';
+import 'package:chat_app/domain/repository/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
-class AuthService {
+class AuthRepositoryImpl extends AuthRepository {
+  
   final authData = FirebaseAuth.instance;
   final usersCollection = FirebaseFirestore.instance.collection("Users");
 
-  void signIn(BuildContext context, String email, String password) async {
+  void showMessage(String message, BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message),
+      ),
+    );
+  }
+
+  @override
+  Future<void> signIn(
+      BuildContext context, String email, String password) async {
     showDialog(
       context: context,
       builder: (context) => const Center(
@@ -29,39 +41,17 @@ class AuthService {
     }
   }
 
-  void showMessage(String message, BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(message),
-      ),
-    );
-  }
+  
 
-  Future signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser =
-        await GoogleSignIn(scopes: ['email']).signIn();
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
-
-  void signUp(
-    BuildContext context,
-    String email,
-    String name,
-    String secondName,
-    String password,
-    String confirmPassword,
-    File? image,
-  ) async {
+  @override
+  Future<void> signUp(
+      BuildContext context,
+      String email,
+      String name,
+      String secondName,
+      String password,
+      String confirmPassword,
+      File? image) async {
     if (image == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Pick an image')),
@@ -115,5 +105,10 @@ class AuthService {
         showMessage(e.code, context);
       }
     }
+  }
+
+  @override
+  Future<void> signOut() async {
+    await authData.signOut();
   }
 }

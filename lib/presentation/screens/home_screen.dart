@@ -1,3 +1,5 @@
+import 'package:chat_app/data/repository/auth_repository_impl.dart';
+import 'package:chat_app/domain/usecases/signout_impl.dart';
 import 'package:chat_app/presentation/screens/chats_screen.dart';
 import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';
@@ -15,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AuthRepositoryImpl authRepositoryImpl = AuthRepositoryImpl();
   final List _screens = [
     const ChatsScreen(),
     const SearchScreen(),
@@ -31,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final SignOutUseCaseImpl signOut = SignOutUseCaseImpl(authRepositoryImpl);
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -93,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
               }),
           IconButton(
               onPressed: () {
-                FirebaseAuth.instance.signOut();
+                signOut.execute();
               },
               icon: const Icon(Icons.logout))
         ],

@@ -1,12 +1,12 @@
-import 'dart:io';
-
+import 'package:chat_app/data/repository/auth_repository_impl.dart';
+import 'package:chat_app/domain/usecases/signup_impl.dart';
+import 'package:chat_app/infrastructure/providers/image_provider.dart';
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
-import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   final Function()? toggleScreens;
   const SignUpScreen({
     super.key,
@@ -14,34 +14,23 @@ class SignUpScreen extends StatefulWidget {
   });
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final emailTextController = TextEditingController();
   final nameTextController = TextEditingController();
   final secondNameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
   final confirmPasswordTextController = TextEditingController();
 
-  final authSrevice = AuthService();
-
-  File? image;
-
-  Future pickImage() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
-
-    if (image == null) return;
-    final imageTemporary = File(image.path);
-    setState(
-      () {
-        this.image = imageTemporary;
-      },
-    );
-  }
+  final AuthRepositoryImpl authRepositoryImpl = AuthRepositoryImpl();
 
   @override
   Widget build(BuildContext context) {
+    final SignupUseCaseImpl signUp = SignupUseCaseImpl(authRepositoryImpl);
+    final image = ref.watch(imageProvider);
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: Center(
@@ -59,7 +48,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   height: 25,
                 ),
                 InkWell(
-                  onTap: pickImage,
+                  onTap: () async {
+                    ref.read(imageProvider.notifier).getImage();
+                  },
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.purple[100],
@@ -71,7 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(50),
                             child: Image.file(
-                              image!,
+                              image,
                               width: double.infinity,
                               fit: BoxFit.fitWidth,
                             ),
@@ -123,7 +114,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 MyButton(
                   text: 'Sign Up',
-                  onTap: () => authSrevice.signUp(
+                  onTap: () => signUp.execute(
                     context,
                     emailTextController.text,
                     nameTextController.text,

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:chat_app/models/message.dart';
+import 'package:chat_app/domain/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';

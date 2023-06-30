@@ -1,8 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:chat_app/data/repository/auth_repository_impl.dart';
+import 'package:chat_app/domain/usecases/signin_impl.dart';
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
-import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -19,10 +20,11 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final emailTextController = TextEditingController();
   final passwordTextController = TextEditingController();
-  final authService = AuthService();
+  final AuthRepositoryImpl authRepositoryImpl = AuthRepositoryImpl();
 
   @override
   Widget build(BuildContext context) {
+    final SignInUseCaseImpl signIn = SignInUseCaseImpl(authRepositoryImpl);
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: Center(
@@ -63,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen> {
               ),
               MyButton(
                 text: 'Sign In',
-                onTap: () => authService.signIn(
+                onTap: () => signIn.execute(
                   context,
                   emailTextController.text,
                   passwordTextController.text,
@@ -88,9 +90,6 @@ class _SignInScreenState extends State<SignInScreen> {
                   )
                 ],
               ),
-              // const SizedBox(height: 10),
-              // ElevatedButton(
-              //     onPressed: signInWithGoogle, child: const Text('Google'))
             ],
           ),
         ),
