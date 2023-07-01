@@ -1,9 +1,14 @@
+import 'package:chat_app/data/repository/friend_repository_impl.dart';
 import 'package:chat_app/domain/models/user.dart';
+import 'package:chat_app/domain/usecases/friend/accept_request_impl.dart';
+import 'package:chat_app/domain/usecases/friend/reject_request_impl.dart';
+import 'package:chat_app/infrastructure/providers/get_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RequestTile extends StatefulWidget {
+class RequestTile extends ConsumerStatefulWidget {
   final String userId;
 
   const RequestTile({
@@ -12,101 +17,65 @@ class RequestTile extends StatefulWidget {
   });
 
   @override
-  State<RequestTile> createState() => _RequestTileState();
+  ConsumerState<RequestTile> createState() => _RequestTileState();
 }
 
-class _RequestTileState extends State<RequestTile> {
+class _RequestTileState extends ConsumerState<RequestTile> {
   final authData = FirebaseAuth.instance;
   final usersCollection = FirebaseFirestore.instance.collection('Users');
+  final FriendRepositoryImpl friendRepositoryImpl = FriendRepositoryImpl();
   AppUser? user;
-
-  Future<void> getUserById(String id) async {
-    final documentSnapshot = await usersCollection.doc(id).get();
-
-    final myJson = documentSnapshot.data();
-
-    setState(() {
-      user = AppUser.fromJson(myJson!);
-    });
-  }
-
-  bool answered = false;
-
-  void acceptRequest() {
-    DocumentReference currentUserRef =
-        usersCollection.doc(authData.currentUser!.uid);
-
-    DocumentReference requestedUserRef = usersCollection.doc(widget.userId);
-
-    currentUserRef.update({
-      'friends': FieldValue.arrayUnion([widget.userId])
-    });
-    requestedUserRef.update({
-      'friends': FieldValue.arrayUnion([authData.currentUser!.uid])
-    });
-
-    currentUserRef.update({
-      'friendRequests': FieldValue.arrayRemove([widget.userId])
-    });
-    setState(() {
-      answered = true;
-    });
-  }
-
-  void rejectRequest() {
-    DocumentReference currentUserRef =
-        usersCollection.doc(authData.currentUser!.uid);
-    currentUserRef.update({
-      'friendRequests': FieldValue.arrayRemove([widget.userId])
-    });
-    setState(() {
-      answered = true;
-    });
-  }
-
-  @override
-  void initState() {
-    getUserById(widget.userId);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return user != null
-        ? ListTile(
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(user!.userImageUrl),
-            ),
-            title: Text(user!.name),
-            subtitle: Text(user!.email),
-            trailing: answered
-                ? const Text('ok')
-                : SizedBox(
-                    width: 100,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: rejectRequest,
-                          icon: const Icon(
-                            Icons.cancel,
-                            size: 35,
-                            color: Colors.red,
-                          ),
+    user = ref.watch(getUserProvider);
+    final AcceptrequestUseCaseImpl acceptRequest =
+        AcceptrequestUseCaseImpl(friendRepositoryImpl);
+
+    final RejectRequestUsecaseImpl rejectRequest =
+        RejectRequestUsecaseImpl(friendRepositoryImpl);
+
+    return FutureBuilder(
+      future: ref.read(getUserProvider.notifier).getUserById(widget.userId),
+      builder: (context, snapshot) {
+        return user != null
+            ? ListTile(
+                leading: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(user!.userImageUrl),
+                ),
+                title: Text(user!.name),
+                subtitle: Text(user!.email),
+                trailing: SizedBox(
+                  width: 100,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          rejectRequest.execute(widget.userId);
+                        },
+                        icon: const Icon(
+                          Icons.cancel,
+                          size: 35,
+                          color: Colors.red,
                         ),
-                        IconButton(
-                          onPressed: acceptRequest,
-                          icon: const Icon(
-                            Icons.check_circle,
-                            size: 35,
-                            color: Colors.green,
-                          ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          acceptRequest.execute(widget.userId);
+                        },
+                        icon: const Icon(
+                          Icons.check_circle,
+                          size: 35,
+                          color: Colors.green,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-          )
-        : const CircularProgressIndicator();
+                ),
+              )
+            : const CircularProgressIndicator();
+      },
+    );
   }
 }

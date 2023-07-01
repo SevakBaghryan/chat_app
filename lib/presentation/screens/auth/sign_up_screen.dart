@@ -1,10 +1,11 @@
 import 'package:chat_app/data/repository/auth_repository_impl.dart';
-import 'package:chat_app/domain/usecases/signup_impl.dart';
+import 'package:chat_app/domain/usecases/auth/signup_impl.dart';
 import 'package:chat_app/infrastructure/providers/image_provider.dart';
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   final Function()? toggleScreens;
@@ -49,7 +50,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 InkWell(
                   onTap: () async {
-                    ref.read(imageProvider.notifier).getImage();
+                    ref
+                        .read(imageProvider.notifier)
+                        .getImage(ImageSource.gallery);
                   },
                   child: CircleAvatar(
                     radius: 50,

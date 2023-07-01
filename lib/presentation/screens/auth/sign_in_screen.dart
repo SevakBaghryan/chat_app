@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:chat_app/data/repository/auth_repository_impl.dart';
-import 'package:chat_app/domain/usecases/signin_impl.dart';
+import 'package:chat_app/domain/usecases/auth/signin_impl.dart';
 import 'package:chat_app/presentation/components/button.dart';
 import 'package:chat_app/presentation/components/text_field.dart';
 import 'package:flutter/material.dart';

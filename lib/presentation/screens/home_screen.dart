@@ -1,5 +1,5 @@
 import 'package:chat_app/data/repository/auth_repository_impl.dart';
-import 'package:chat_app/domain/usecases/signout_impl.dart';
+import 'package:chat_app/domain/usecases/auth/signout_impl.dart';
 import 'package:chat_app/presentation/screens/chats_screen.dart';
 import 'package:chat_app/presentation/screens/friend_requests_screen.dart';
 import 'package:chat_app/presentation/screens/profile_screen.dart';

@@ -1,24 +1,28 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:io';
-
+import 'package:chat_app/data/repository/profile_repository_impl.dart';
 import 'package:chat_app/domain/models/user.dart';
+import 'package:chat_app/domain/usecases/profile/edit_image_impl.dart';
+import 'package:chat_app/domain/usecases/profile/edit_name_impl.dart';
+import 'package:chat_app/domain/usecases/profile/edit_secondname_impl.dart';
 import 'package:chat_app/presentation/screens/home_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileEditingScreen extends StatefulWidget {
+class ProfileEditingScreen extends ConsumerStatefulWidget {
   final AppUser myUser;
   const ProfileEditingScreen({required this.myUser, super.key});
 
   @override
-  State<ProfileEditingScreen> createState() => _ProfileEditingScreenState();
+  ConsumerState<ProfileEditingScreen> createState() =>
+      _ProfileEditingScreenState();
 }
 
-class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
+class _ProfileEditingScreenState extends ConsumerState<ProfileEditingScreen> {
   final authData = FirebaseAuth.instance;
 
   final usersCollection = FirebaseFirestore.instance.collection('Users');
@@ -26,70 +30,16 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
   final _nameTextController = TextEditingController();
   final _secondNameTextController = TextEditingController();
 
-  void editProfileData(String newName) {
-    DocumentReference userRef = usersCollection.doc(authData.currentUser!.uid);
-    SnackBar snackBar(String text) => SnackBar(
-          content: Text(text),
-        );
-
-    if (newName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(snackBar('Write some text!'));
-    } else if (newName == _nameTextController.text) {
-      userRef.update({
-        'name': newName,
-      });
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(snackBar('Your Name is changed'));
-    } else if (newName == _secondNameTextController.text) {
-      userRef.update({
-        'secondName': newName,
-      });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(snackBar('Your SecondName is changed'));
-    }
-  }
-
-  void editProfileImage(ImageSource imageSource) async {
-    await pickImage(imageSource);
-    String uniqueName = DateTime.now().millisecondsSinceEpoch.toString();
-
-    Reference storageReference = FirebaseStorage.instance.ref();
-    Reference bucketRef = storageReference.child('images');
-    Reference imageRef = bucketRef.child(uniqueName);
-    DocumentReference userRef = usersCollection.doc(authData.currentUser!.uid);
-
-    final snapshot = await imageRef.putFile(image!).whenComplete(() => null);
-
-    final imageUrl = await snapshot.ref.getDownloadURL();
-
-    userRef.update({
-      'userImageUrl': imageUrl,
-    });
-
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
-        (route) => false);
-  }
-
-  File? image;
-
-  Future pickImage(ImageSource imageSource) async {
-    final image = await ImagePicker().pickImage(source: imageSource);
-
-    if (image == null) return;
-    final imageTemporary = File(image.path);
-    setState(
-      () {
-        this.image = imageTemporary;
-      },
-    );
-  }
+  final ProfileRepositoryImpl profileRepositoryImpl = ProfileRepositoryImpl();
 
   @override
   Widget build(BuildContext context) {
+    final EditNameUsecaseImpl editname =
+        EditNameUsecaseImpl(profileRepositoryImpl);
+    final EditSecondNameUseCaseImpl editSecondName =
+        EditSecondNameUseCaseImpl(profileRepositoryImpl);
+    final EditImageUsecaseImpl editImage =
+        EditImageUsecaseImpl(profileRepositoryImpl);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -132,14 +82,16 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
                               child: const Text('Camera'),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                editProfileImage(ImageSource.camera);
+                                editImage.execute(
+                                    ImageSource.camera, ref, context);
                               },
                             ),
                             TextButton(
                               child: const Text('Gallery'),
                               onPressed: () {
                                 Navigator.of(context).pop();
-                                editProfileImage(ImageSource.gallery);
+                                editImage.execute(
+                                    ImageSource.gallery, ref, context);
                               },
                             ),
                           ],
@@ -184,7 +136,7 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
                 labelStyle: const TextStyle(color: Colors.black),
                 suffixIcon: IconButton(
                   onPressed: () {
-                    editProfileData(_nameTextController.text);
+                    editname.execute(_nameTextController.text, context);
                   },
                   icon: const Icon(
                     Icons.check,
@@ -211,7 +163,8 @@ class _ProfileEditingScreenState extends State<ProfileEditingScreen> {
                 ),
                 suffixIcon: IconButton(
                   onPressed: () {
-                    editProfileData(_secondNameTextController.text);
+                    editSecondName.execute(
+                        _secondNameTextController.text, context);
                   },
                   icon: const Icon(Icons.check),
                 ),

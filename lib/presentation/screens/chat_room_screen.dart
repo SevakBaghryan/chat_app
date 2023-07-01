@@ -1,8 +1,11 @@
+import 'package:chat_app/data/repository/chat_repository_impl.dart';
 import 'package:chat_app/domain/models/message.dart';
+import 'package:chat_app/domain/usecases/chat/send_file_impl.dart';
+import 'package:chat_app/domain/usecases/chat/send_image_impl.dart';
+import 'package:chat_app/domain/usecases/chat/send_message_impl.dart';
 import 'package:chat_app/presentation/components/file_message.dart';
 import 'package:chat_app/presentation/components/image_message.dart';
 import 'package:chat_app/presentation/components/message_bubble.dart';
-import 'package:chat_app/services/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -20,10 +23,19 @@ class ChatRoom extends StatelessWidget {
   final TextEditingController _message = TextEditingController();
   final FirebaseAuth authData = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final chatServise = ChatService();
+  final ChatRepositoryImpl chatRepositoryImpl = ChatRepositoryImpl();
 
   @override
   Widget build(BuildContext context) {
+    final SendMessageUseCaseImpl sendMessage =
+        SendMessageUseCaseImpl(chatRepositoryImpl);
+
+    final SendImageUseCaseImpl sendImage =
+        SendImageUseCaseImpl(chatRepositoryImpl);
+
+    final SendFileUseCaseImpl sendFile =
+        SendFileUseCaseImpl(chatRepositoryImpl);
+
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -78,19 +90,19 @@ class ChatRoom extends StatelessWidget {
                       height: size.height / 18,
                       width: size.width / 1.3,
                       child: TextField(
-                        onSubmitted: (value) => chatServise.onSendMessage(
+                        onSubmitted: (value) => sendMessage.execute(
                             _message, chatRoomId, 'chatroom'),
                         controller: _message,
                         decoration: InputDecoration(
                           icon: IconButton(
                             onPressed: () {
-                              chatServise.pickFile(chatRoomId, 'chatroom');
+                              sendFile.execute(chatRoomId, 'chatroom');
                             },
                             icon: const Icon(Icons.file_copy),
                           ),
                           suffixIcon: IconButton(
                               onPressed: () {
-                                chatServise.getImage(chatRoomId, 'chatroom');
+                                sendImage.execute(chatRoomId, 'chatroom');
                               },
                               icon: const Icon(Icons.image)),
                           hintText: 'Send message',
@@ -102,8 +114,7 @@ class ChatRoom extends StatelessWidget {
                     ),
                     IconButton(
                         onPressed: () {
-                          chatServise.onSendMessage(
-                              _message, chatRoomId, 'chatroom');
+                          sendMessage.execute(_message, chatRoomId, 'chatroom');
                         },
                         icon: const Icon(Icons.send))
                   ],

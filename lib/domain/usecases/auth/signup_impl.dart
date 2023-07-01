@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:chat_app/domain/usecases/signup.dart';
+import 'package:chat_app/data/repository/auth_repository_impl.dart';
+import 'package:chat_app/domain/usecases/auth/signup.dart';
 import 'package:flutter/widgets.dart';
-
-import '../../data/repository/auth_repository_impl.dart';
 
 class SignupUseCaseImpl extends SignUpUseCase {
   SignupUseCaseImpl(this.authRepositoryImpl);

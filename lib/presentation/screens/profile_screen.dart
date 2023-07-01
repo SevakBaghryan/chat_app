@@ -1,38 +1,33 @@
 import 'package:chat_app/domain/models/user.dart';
+import 'package:chat_app/infrastructure/providers/get_user.dart';
 import 'package:chat_app/presentation/screens/friends_screen.dart';
 import 'package:chat_app/presentation/screens/profile_editing_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final authData = FirebaseAuth.instance;
 
   final usersCollection = FirebaseFirestore.instance.collection('Users');
 
   AppUser? user;
 
-  Future<void> getUserById(String id) async {
-    final documentSnapshot = await usersCollection.doc(id).get();
-
-    final myJson = documentSnapshot.data();
-
-    setState(() {
-      user = AppUser.fromJson(myJson!);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(getUserProvider);
     return FutureBuilder(
-      future: getUserById(authData.currentUser!.uid),
+      future: ref
+          .read(getUserProvider.notifier)
+          .getUserById(authData.currentUser!.uid),
       builder: (context, snapshot) {
         // if (snapshot.connectionState == ConnectionState.done) {}
         return Row(
@@ -43,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     padding: const EdgeInsets.all(10),
                     child: CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(user!.userImageUrl),
+                      backgroundImage: NetworkImage(user.userImageUrl),
                     ),
                   )
                 : const CircularProgressIndicator(),
@@ -54,12 +49,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${user!.name} ${user!.secondName}',
+                          '${user.name} ${user.secondName}',
                           style: const TextStyle(
                               fontSize: 22, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          user!.email,
+                          user.email,
                           style:
                               TextStyle(color: Colors.grey[600], fontSize: 16),
                         ),
@@ -74,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onTap: () {
                                   Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => ProfileEditingScreen(
-                                      myUser: user!,
+                                      myUser: user,
                                     ),
                                   ));
                                 },

@@ -1,41 +1,25 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
+import 'package:chat_app/infrastructure/providers/search_provider.dart';
 import 'package:chat_app/presentation/components/user_tile.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final searchController = TextEditingController();
-  List searchResult = [];
+
   List foundUsers = [];
 
   @override
   Widget build(BuildContext context) {
-    final CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('Users');
-
-    Future<void> searchUser(String searchTerm) async {
-      searchResult = [];
-      final querySnapshot =
-          await usersCollection.where('name', isEqualTo: searchTerm).get();
-
-      querySnapshot.docs.forEach(
-        (document) {
-          searchResult.add(document.id);
-        },
-      );
-
-      setState(() {
-        foundUsers = searchResult;
-      });
-    }
+    foundUsers = ref.watch(searchProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -45,8 +29,9 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             TextField(
               controller: searchController,
-              onEditingComplete: () async =>
-                  await searchUser(searchController.text),
+              onEditingComplete: () async => await ref
+                  .read(searchProvider.notifier)
+                  .searchUser(searchController.text),
               decoration: InputDecoration(
                 hintText: 'Search',
                 prefixIcon: const Icon(Icons.search),
