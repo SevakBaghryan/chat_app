@@ -21,6 +21,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   AppUser? user;
 
+  final getUserProvider = StateNotifierProvider<GetUserIdProvider, AppUser?>(
+      (ref) => GetUserIdProvider());
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(getUserProvider);

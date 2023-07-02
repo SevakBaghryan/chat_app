@@ -20,6 +20,8 @@ class _UserTileState extends ConsumerState<UserTile> {
   final usersCollection = FirebaseFirestore.instance.collection('Users');
   AppUser? user;
 
+  final getUserProvider = StateNotifierProvider<GetUserIdProvider, AppUser?>(
+      (ref) => GetUserIdProvider());
   @override
   Widget build(BuildContext context) {
     user = ref.watch(getUserProvider);

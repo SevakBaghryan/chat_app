@@ -26,6 +26,8 @@ class _RequestTileState extends ConsumerState<RequestTile> {
   final FriendRepositoryImpl friendRepositoryImpl = FriendRepositoryImpl();
   AppUser? user;
 
+  final getUserProvider = StateNotifierProvider<GetUserIdProvider, AppUser?>(
+      (ref) => GetUserIdProvider());
   @override
   Widget build(BuildContext context) {
     user = ref.watch(getUserProvider);

@@ -46,11 +46,8 @@ class GroupChatRoom extends StatelessWidget {
           IconButton(
               onPressed: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => GroupInfo(
-                        groupName: groupName,
-                        groupId: groupChatId,
-                      ),
-                    ),
+                        builder: (_) => GroupInfoScreen(
+                            groupName: groupName, groupId: groupChatId)),
                   ),
               icon: const Icon(Icons.more_vert)),
         ],

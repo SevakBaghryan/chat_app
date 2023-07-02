@@ -1,106 +1,29 @@
-import 'package:chat_app/domain/models/group_member.dart';
+import 'package:chat_app/infrastructure/providers/group_provider.dart';
+import 'package:chat_app/infrastructure/providers/search_provider.dart';
 import 'package:chat_app/presentation/screens/group_chats/create_group_chat.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChooseMembersInGroup extends StatefulWidget {
+class ChooseMembersInGroup extends ConsumerStatefulWidget {
   const ChooseMembersInGroup({Key? key}) : super(key: key);
 
   @override
-  State<ChooseMembersInGroup> createState() => _ChooseMembersInGroupState();
+  ConsumerState<ChooseMembersInGroup> createState() =>
+      _ChooseMembersInGroupState();
 }
 
-class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
-  final TextEditingController _search = TextEditingController();
+class _ChooseMembersInGroupState extends ConsumerState<ChooseMembersInGroup> {
+  final groupProvider =
+      StateNotifierProvider<GroupProvider, List<Map<String, dynamic>>>(
+          (ref) => GroupProvider());
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  List<Map<String, dynamic>> membersList = [];
-
-  bool isLoading = false;
-
-  Map<String, dynamic>? userMap;
-
-  String? userId;
-
-  @override
-  void initState() {
-    super.initState();
-    getCurrentUserDetails();
-  }
-
-  void getCurrentUserDetails() async {
-    await _firestore
-        .collection('Users')
-        .doc(_auth.currentUser!.uid)
-        .get()
-        .then((map) {
-      setState(() {
-        GroupMember groupMember = GroupMember(
-            uid: _auth.currentUser!.uid,
-            userImageUrl: map['userImageUrl'],
-            email: map['email'],
-            name: map['name'],
-            isAdmin: true);
-
-        membersList.add(groupMember.toJson());
-      });
-    });
-  }
-
-  void onSearch() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final querySnapshot = await _firestore
-        .collection('Users')
-        .where("name", isEqualTo: _search.text)
-        .get();
-
-    setState(() {
-      userMap = querySnapshot.docs.first.data();
-      userId = querySnapshot.docs.first.id;
-      isLoading = false;
-    });
-  }
-
-  void onResultTap() {
-    bool isAlreadyExist = false;
-
-    for (int i = 0; i < membersList.length; i++) {
-      if (membersList[i]['email'] == userMap!['email']) {
-        isAlreadyExist = true;
-      }
-    }
-
-    if (!isAlreadyExist) {
-      GroupMember newMember = GroupMember(
-          uid: userId as String,
-          userImageUrl: userMap!['userImageUrl'],
-          email: userMap!['email'],
-          name: userMap!['name'],
-          isAdmin: false);
-      setState(() {
-        membersList.add(newMember.toJson());
-
-        userMap = null;
-      });
-    }
-  }
-
-  void onRemoveMembers(int index) {
-    if (membersList[index]['email'] != _auth.currentUser!.email) {
-      setState(() {
-        membersList.removeAt(index);
-      });
-    }
-  }
-
+  final searchProvider = StateNotifierProvider<Searchprovider, List<dynamic>>(
+      (ref) => Searchprovider());
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _search = TextEditingController();
+    final foundUsers = ref.watch(searchProvider);
+    final membersList = ref.watch(groupProvider);
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -119,7 +42,8 @@ class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   return ListTile(
-                    onTap: () => onRemoveMembers(index),
+                    onTap: () =>
+                        ref.read(groupProvider.notifier).onRemoveMembers(index),
                     leading: CircleAvatar(
                         backgroundImage: NetworkImage(
                       membersList[index]['userImageUrl'],
@@ -156,33 +80,36 @@ class _ChooseMembersInGroupState extends State<ChooseMembersInGroup> {
             SizedBox(
               height: size.height / 50,
             ),
-            isLoading
-                ? Container(
-                    height: size.height / 12,
-                    width: size.height / 12,
-                    alignment: Alignment.center,
-                    child: const CircularProgressIndicator(),
-                  )
-                : ElevatedButton(
-                    style: const ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 74, 141, 180),
-                    )),
-                    onPressed: onSearch,
-                    child: const Text("Search"),
-                  ),
-            userMap != null
-                ? ListTile(
-                    onTap: onResultTap,
-                    leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                      userMap!['userImageUrl'],
-                    )),
-                    title: Text(userMap!['name']),
-                    subtitle: Text(userMap!['email']),
-                    trailing: const Icon(Icons.add),
-                  )
-                : const SizedBox(),
+            ElevatedButton(
+              style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                Color.fromARGB(255, 74, 141, 180),
+              )),
+              onPressed: () {
+                print(11);
+                ref.read(searchProvider.notifier).searchUser(_search.text);
+                // print(foundUsers.first);
+              },
+              child: const Text("Search"),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: foundUsers.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  onTap: () {
+                    print(11);
+                    ref
+                        .read(groupProvider.notifier)
+                        .onResultTap(index, foundUsers);
+                  },
+                  leading: Image.network(foundUsers[index]['userImageUrl']),
+                  title: Text(foundUsers[index]['name']),
+                  subtitle: Text(foundUsers[index]['email']),
+                  trailing: const Icon(Icons.add),
+                );
+              },
+            ),
           ],
         ),
       ),

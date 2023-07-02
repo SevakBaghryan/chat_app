@@ -30,6 +30,8 @@ class _UserChatTileState extends ConsumerState<UserChatTile> {
 
   AppUser? user;
 
+  final getUserProvider = StateNotifierProvider<GetUserIdProvider, AppUser?>(
+      (ref) => GetUserIdProvider());
   @override
   Widget build(BuildContext context) {
     user = ref.watch(getUserProvider);
